@@ -191,18 +191,21 @@ st.success(f"🔥 Cu indexare {raise_pct}%/an, ajungi la: **{int(indexed[-1]):,}
 if raise_pct >= 5:
     tips.append(f"Indexează contribuția cu {raise_pct}%/an — e unul dintre cele mai puternice hack-uri reale.")
     def generate_pdf(report):
-        buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=A4)
-        styles = getSampleStyleSheet()
-        elements = []
-
-        elements.append(Paragraph("Wealth Coach PRO", styles["Title"]))
-    ...
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=36,
+        leftMargin=36,
+        topMargin=36,
+        bottomMargin=36
+    )
+    styles = getSampleStyleSheet()
+    elements = []
 
     elements.append(Paragraph("Wealth Coach PRO — Raport financiar (Beta)", styles["Title"]))
     elements.append(Spacer(1, 12))
 
-    # Rezumat
     elements.append(Paragraph("<b>Rezumat</b>", styles["Heading2"]))
     summary_tbl = Table([
         ["Venit lunar", f"{report['income']:,} lei"],
@@ -210,23 +213,20 @@ if raise_pct >= 5:
         ["Disponibil (după cheltuieli)", f"{report['available']:,} lei"],
         ["Investiție lunară folosită", f"{report['monthly']:,} lei"],
         ["Orizont", f"{report['years']} ani"],
-        ["Randament anual net", f"{report['net_return']:.2f}%"],
-        ["Inflație", f"{report['inflation']}%"],
-        ["Costuri/fee-uri", f"{report['fees']}%"],
+        ["Randament anual net (%)", f"{report['net_return']:.2f}%"],
+        ["Inflație (%)", f"{report['inflation']}%"],
+        ["Costuri/fee-uri (%)", f"{report['fees']}%"],
     ], colWidths=[220, 260])
 
     summary_tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.whitesmoke),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-        ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
-        ("FONTSIZE", (0,0), (-1,-1), 10),
-        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
-        ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.whitesmoke, colors.lightgrey]),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("ROWBACKGROUNDS", (0, 0), (-1, -1), [colors.whitesmoke, colors.lightgrey]),
     ]))
     elements.append(summary_tbl)
     elements.append(Spacer(1, 12))
 
-    # Rezultate
     elements.append(Paragraph("<b>Rezultate</b>", styles["Heading2"]))
     elements.append(Paragraph(f"Depuneri totale: <b>{report['total_contrib']:,} lei</b>", styles["BodyText"]))
     elements.append(Paragraph(f"Valoare finală (nominal): <b>{report['final_nominal']:,} lei</b>", styles["BodyText"]))
@@ -234,31 +234,39 @@ if raise_pct >= 5:
     elements.append(Paragraph(f"Câștig peste depuneri: <b>{report['growth']:,} lei</b>", styles["BodyText"]))
     elements.append(Spacer(1, 10))
 
-    # Țintă
     if report["hit_years"] is not None:
-        elements.append(Paragraph(f"Ținta de <b>{report['goal']:,} lei</b> este atinsă în ~ <b>{report['hit_years']}</b> ani.", styles["BodyText"]))
+        elements.append(Paragraph(
+            f"Ținta de <b>{report['goal']:,} lei</b> este atinsă în ~ <b>{report['hit_years']}</b> ani.",
+            styles["BodyText"]
+        ))
     else:
-        elements.append(Paragraph(f"Ținta de <b>{report['goal']:,} lei</b> NU este atinsă în {report['years']} ani la setările actuale.", styles["BodyText"]))
-    elements.append(Paragraph(f"Investiție lunară necesară pentru țintă în {report['years']} ani: <b>{report['needed_monthly']:,} lei/lună</b>", styles["BodyText"]))
+        elements.append(Paragraph(
+            f"Ținta de <b>{report['goal']:,} lei</b> NU este atinsă în {report['years']} ani la setările actuale.",
+            styles["BodyText"]
+        ))
+
+    elements.append(Paragraph(
+        f"Investiție lunară necesară pentru țintă în {report['years']} ani: "
+        f"<b>{report['needed_monthly']:,} lei/lună</b>",
+        styles["BodyText"]
+    ))
     elements.append(Spacer(1, 12))
 
-    # Scenarii
     elements.append(Paragraph("<b>Scenarii</b>", styles["Heading2"]))
     scen_tbl = Table(
         [["Scenariu", "Randament net", "Valoare finală"]] + report["scenario_rows"],
         colWidths=[180, 140, 160]
     )
     scen_tbl.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.black),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-        ("FONTSIZE", (0,0), (-1,-1), 10),
-        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.black),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.lightgrey),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
     ]))
     elements.append(scen_tbl)
     elements.append(Spacer(1, 12))
 
-    # Recomandări
     elements.append(Paragraph("<b>Recomandări (Coach)</b>", styles["Heading2"]))
     for tip in report["tips"]:
         elements.append(Paragraph("• " + tip, styles["BodyText"]))
@@ -384,6 +392,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
