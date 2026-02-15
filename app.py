@@ -352,7 +352,8 @@ if not is_premium:
     st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
 
 else:
-    if not is_premium:
+# --- PDF Premium (gating)
+if not is_premium:
     st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
 else:
     if st.button("📄 Generează Plan PDF (Premium)"):
@@ -390,6 +391,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
