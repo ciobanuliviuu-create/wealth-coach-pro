@@ -353,8 +353,18 @@ if not is_premium:
 
 else:
     if is_premium:
+    if not is_premium:
+    st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
+else:
     if st.button("📄 Generează Plan PDF (Premium)"):
-        pdf_file = generate_pdf(report_data)  # vezi secțiunea B
+        pdf_file = generate_pdf(report_data)
+        st.download_button(
+            "⬇️ Download PDF",
+            data=pdf_file,
+            file_name="wealth_plan.pdf",
+            mime="application/pdf"
+        )
+
         st.download_button(
             "⬇️ Download PDF",
             data=pdf_file,
@@ -381,6 +391,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
