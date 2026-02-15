@@ -1,11 +1,12 @@
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 import io
 
 import streamlit as st
@@ -25,6 +26,25 @@ st.caption("Predicții • scenarii • plan de acțiune — fără API key, 100
 
 # ---- Inputs
 st.subheader("1) Datele tale")
+st.subheader("0) Buget lunar (pentru un plan profesional)")
+
+colA, colB, colC = st.columns(3)
+with colA:
+    income = st.number_input("💼 Venit lunar (lei)", min_value=0, value=5000, step=100)
+with colB:
+    expenses = st.number_input("🧾 Cheltuieli lunare (lei)", min_value=0, value=3500, step=100)
+with colC:
+    buffer_pct = st.slider("🛟 Buffer siguranță (%)", 0, 30, 10)
+
+available = max(0, income - expenses)
+safe_available = int(available * (1 - buffer_pct/100))
+
+st.caption(f"Disponibil după cheltuieli: **{available:,} lei/lună** | După buffer: **{safe_available:,} lei/lună**")
+
+use_safe = st.checkbox("Folosește automat suma disponibilă (după buffer) ca investiție lunară", value=False)
+if use_safe:
+    monthly = safe_available
+
 monthly = st.number_input("💸 Investiție lunară (lei)", min_value=0, value=500, step=50)
 years = st.number_input("📅 Orizont (ani)", min_value=1, value=10, step=1)
 
@@ -170,6 +190,79 @@ st.success(f"🔥 Cu indexare {raise_pct}%/an, ajungi la: **{int(indexed[-1]):,}
 
 if raise_pct >= 5:
     tips.append(f"Indexează contribuția cu {raise_pct}%/an — e unul dintre cele mai puternice hack-uri reale.")
+    def generate_pdf(report):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    styles = getSampleStyleSheet()
+    elements = []
+
+    elements.append(Paragraph("Wealth Coach PRO — Raport financiar (Beta)", styles["Title"]))
+    elements.append(Spacer(1, 12))
+
+    # Rezumat
+    elements.append(Paragraph("<b>Rezumat</b>", styles["Heading2"]))
+    summary_tbl = Table([
+        ["Venit lunar", f"{report['income']:,} lei"],
+        ["Cheltuieli lunare", f"{report['expenses']:,} lei"],
+        ["Disponibil (după cheltuieli)", f"{report['available']:,} lei"],
+        ["Investiție lunară folosită", f"{report['monthly']:,} lei"],
+        ["Orizont", f"{report['years']} ani"],
+        ["Randament anual net", f"{report['net_return']:.2f}%"],
+        ["Inflație", f"{report['inflation']}%"],
+        ["Costuri/fee-uri", f"{report['fees']}%"],
+    ], colWidths=[220, 260])
+
+    summary_tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.whitesmoke),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
+        ("FONTNAME", (0,0), (-1,-1), "Helvetica"),
+        ("FONTSIZE", (0,0), (-1,-1), 10),
+        ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
+        ("ROWBACKGROUNDS", (0,0), (-1,-1), [colors.whitesmoke, colors.lightgrey]),
+    ]))
+    elements.append(summary_tbl)
+    elements.append(Spacer(1, 12))
+
+    # Rezultate
+    elements.append(Paragraph("<b>Rezultate</b>", styles["Heading2"]))
+    elements.append(Paragraph(f"Depuneri totale: <b>{report['total_contrib']:,} lei</b>", styles["BodyText"]))
+    elements.append(Paragraph(f"Valoare finală (nominal): <b>{report['final_nominal']:,} lei</b>", styles["BodyText"]))
+    elements.append(Paragraph(f"Valoare finală (real, după inflație): <b>{report['final_real']:,} lei</b>", styles["BodyText"]))
+    elements.append(Paragraph(f"Câștig peste depuneri: <b>{report['growth']:,} lei</b>", styles["BodyText"]))
+    elements.append(Spacer(1, 10))
+
+    # Țintă
+    if report["hit_years"] is not None:
+        elements.append(Paragraph(f"Ținta de <b>{report['goal']:,} lei</b> este atinsă în ~ <b>{report['hit_years']}</b> ani.", styles["BodyText"]))
+    else:
+        elements.append(Paragraph(f"Ținta de <b>{report['goal']:,} lei</b> NU este atinsă în {report['years']} ani la setările actuale.", styles["BodyText"]))
+    elements.append(Paragraph(f"Investiție lunară necesară pentru țintă în {report['years']} ani: <b>{report['needed_monthly']:,} lei/lună</b>", styles["BodyText"]))
+    elements.append(Spacer(1, 12))
+
+    # Scenarii
+    elements.append(Paragraph("<b>Scenarii</b>", styles["Heading2"]))
+    scen_tbl = Table(
+        [["Scenariu", "Randament net", "Valoare finală"]] + report["scenario_rows"],
+        colWidths=[180, 140, 160]
+    )
+    scen_tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.black),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
+        ("FONTSIZE", (0,0), (-1,-1), 10),
+        ("ALIGN", (1,1), (-1,-1), "RIGHT"),
+    ]))
+    elements.append(scen_tbl)
+    elements.append(Spacer(1, 12))
+
+    # Recomandări
+    elements.append(Paragraph("<b>Recomandări (Coach)</b>", styles["Heading2"]))
+    for tip in report["tips"]:
+        elements.append(Paragraph("• " + tip, styles["BodyText"]))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
 
 def generate_pdf(monthly, years, final_amount):
     buffer = io.BytesIO()
@@ -190,15 +283,61 @@ def generate_pdf(monthly, years, final_amount):
     return buffer
 
 st.divider()
-st.subheader("💎 Premium Upgrade")
+st.header("💎 Premium Upgrade")
+
+hit_years = None
+if goal > 0 and hit_m:
+    hit_years = round(hit_m/12, 1)
+
+scenario_rows = []
+for row in sc_df.to_dict(orient="records"):
+    scenario_rows.append([
+        row["Scenariu"],
+        f"{row['Randament anual net (%)']}%",
+        f"{row['Valoare finală (lei)']:,} lei"
+    ])
+
+report_data = {
+    "income": int(income),
+    "expenses": int(expenses),
+    "available": int(available),
+    "monthly": int(monthly),
+    "years": int(years),
+    "net_return": float(net_return),
+    "inflation": int(inflation),
+    "fees": float(fees),
+    "goal": int(goal),
+    "total_contrib": int(total_contrib),
+    "final_nominal": int(final_nominal),
+    "final_real": int(final_real),
+    "growth": int(growth),
+    "hit_years": hit_years,
+    "needed_monthly": int(needed),
+    "scenario_rows": scenario_rows,
+    "tips": tips,
+}
 
 st.markdown("""
-### Ce primești:
-- 📄 Export PDF personalizat
-- 💾 Salvare plan
-- 📊 Strategii avansate
-- 🚀 Acces Beta viitoare funcții
+### 💎 Premium (39 lei) — Raport PDF profesional
+Primești un raport pe care îl poți printa și folosi ca plan de acțiune:
+- ✅ Buget lunar (venit/cheltuieli) + investiție realistă
+- ✅ Predicție nominal vs real (după inflație)
+- ✅ Scenarii (Conservator/Bază/Optimist)
+- ✅ Când atingi 1.000.000 lei + ce sumă îți trebuie lunar
+- ✅ Recomandări clare (următorii pași)
+
+**Bonus (Beta):** acces la următoarele funcții înainte de lansare.
 """)
+
+st.markdown("👉 **Cumpără Premium:** [💳 Cumpără Premium – 39 lei](https://buy.stripe.com/test_cNi8wO92W0ohgyb79uc3m00)")
+st.caption("🔒 După plată, primești codul Premium. Dacă ai plătit și nu ai cod, scrie pe email/DM și îl trimit imediat.")
+
+st.subheader("🔒 Acces Premium")
+code = st.text_input("Cod Premium (primit după plată)", type="password")
+
+PREMIUM_CODE = "UNICORN39"  # schimbă-l când vrei
+is_premium = (code.strip() == PREMIUM_CODE)
+
 
 st.subheader("🔒 Acces Premium")
 code = st.text_input("Cod Premium (primit după plată)", type="password")
@@ -207,12 +346,14 @@ PREMIUM_CODE = "UNICORN39"  # schimbă-l când vrei
 is_premium = (code == PREMIUM_CODE)
 
 if not is_premium:
-    st.warning("Pentru PDF ai nevoie de Premium. Cumpără Premium și primești codul pe email.")
+    st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
+
 else:
-    if st.button("📄 Descarcă Plan PDF (Premium)"):
-        pdf_file = generate_pdf(monthly, years, final_nominal)
+    if is_premium:
+    if st.button("📄 Generează Plan PDF (Premium)"):
+        pdf_file = generate_pdf(report_data)  # vezi secțiunea B
         st.download_button(
-            label="⬇️ Download PDF",
+            "⬇️ Download PDF",
             data=pdf_file,
             file_name="wealth_plan.pdf",
             mime="application/pdf"
@@ -237,6 +378,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
