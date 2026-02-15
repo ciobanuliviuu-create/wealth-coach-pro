@@ -1,6 +1,3 @@
-import streamlit as st
-import pandas as pd
-
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib import colors
@@ -11,6 +8,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 import io
 
+import streamlit as st
+import pandas as pd
 
 st.set_page_config(page_title="Wealth Coach PRO", page_icon="🦄", layout="centered")
 
@@ -220,6 +219,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
