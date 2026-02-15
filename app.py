@@ -190,7 +190,7 @@ st.success(f"🔥 Cu indexare {raise_pct}%/an, ajungi la: **{int(indexed[-1]):,}
 
 if raise_pct >= 5:
     tips.append(f"Indexează contribuția cu {raise_pct}%/an — e unul dintre cele mai puternice hack-uri reale.")
-    def generate_pdf(report):
+def generate_pdf(report):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
         buffer,
@@ -392,6 +392,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
