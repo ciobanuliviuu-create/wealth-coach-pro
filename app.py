@@ -200,16 +200,34 @@ st.markdown("""
 - 🚀 Acces Beta viitoare funcții
 """)
 
-if st.button("📄 Descarcă Plan PDF (Premium)"):
-    pdf_file = generate_pdf(monthly, years, final_nominal)
-    st.download_button(
-        label="⬇️ Download PDF",
-        data=pdf_file,
-        file_name="wealth_plan.pdf",
-        mime="application/pdf"
-    )
+st.subheader("🔒 Acces Premium")
+code = st.text_input("Cod Premium (primit după plată)", type="password")
 
-st.markdown("[💳 Cumpără Premium - 39 lei](https://buy.stripe.com/test_cNi8wO92W0ohgyb79uc3m00)")
+PREMIUM_CODE = "UNICORN39"  # schimbă-l când vrei
+is_premium = (code == PREMIUM_CODE)
+
+if not is_premium:
+    st.warning("Pentru PDF ai nevoie de Premium. Cumpără Premium și primești codul pe email.")
+else:
+    if st.button("📄 Descarcă Plan PDF (Premium)"):
+        pdf_file = generate_pdf(monthly, years, final_nominal)
+        st.download_button(
+            label="⬇️ Download PDF",
+            data=pdf_file,
+            file_name="wealth_plan.pdf",
+            mime="application/pdf"
+        )
+
+st.markdown("""
+### 💎 Premium (39 lei)
+Primești instant:
+- 📄 PDF personalizat cu planul tău (ready to print)
+- 🎯 Când atingi 1.000.000 lei + ce sumă îți trebuie lunar
+- 📈 Scenarii Conservator/Bază/Optimist
+- 🚀 Indexare contribuție (hack-ul care accelerează tot)
+
+👉 După plată primești un cod de acces pe email.
+""")
 
 if not tips:
     tips.append("Ești setat bine. Ține-te de plan, evită retragerile și optimizează costurile.")
@@ -219,6 +237,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
