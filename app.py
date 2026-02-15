@@ -4,6 +4,8 @@ import pandas as pd
 st.set_page_config(page_title="Wealth Coach PRO", page_icon="🦄", layout="centered")
 
 st.title("🦄 Wealth Coach PRO (Romania)")
+st.info("🚀 Beta: dacă vrei versiunea Premium + salvare plan + PDF, lasă email aici:")
+email = st.text_input("Email")
 st.caption("Predicții • scenarii • plan de acțiune — fără API key, 100% local")
 
 # ---- Inputs
@@ -162,3 +164,4 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
