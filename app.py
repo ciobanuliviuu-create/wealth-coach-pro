@@ -351,19 +351,19 @@ is_premium = (code == PREMIUM_CODE)
 if not is_premium:
     st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
 
-else:
-# --- PDF Premium (gating)
+# --- PDF Premium (gating) - varianta fără else (anti-indent error)
 if not is_premium:
     st.warning("Pentru PDF ai nevoie de Premium. După plată primești codul pe email/DM.")
-else:
-    if st.button("📄 Generează Plan PDF (Premium)"):
-        pdf_file = generate_pdf(report_data)
-        st.download_button(
-            "⬇️ Download PDF",
-            data=pdf_file,
-            file_name="wealth_plan.pdf",
-            mime="application/pdf"
-        )
+    st.stop()
+
+if st.button("📄 Generează Plan PDF (Premium)"):
+    pdf_file = generate_pdf(report_data)
+    st.download_button(
+        "⬇️ Download PDF",
+        data=pdf_file,
+        file_name="wealth_plan.pdf",
+        mime="application/pdf"
+    )
 
         st.download_button(
             "⬇️ Download PDF",
@@ -391,6 +391,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
