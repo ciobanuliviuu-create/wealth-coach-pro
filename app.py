@@ -1,6 +1,17 @@
 import streamlit as st
 import pandas as pd
 
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+import io
+
+
 st.set_page_config(page_title="Wealth Coach PRO", page_icon="🦄", layout="centered")
 
 st.title("🦄 Wealth Coach PRO (Romania)")
@@ -161,6 +172,24 @@ st.success(f"🔥 Cu indexare {raise_pct}%/an, ajungi la: **{int(indexed[-1]):,}
 if raise_pct >= 5:
     tips.append(f"Indexează contribuția cu {raise_pct}%/an — e unul dintre cele mai puternice hack-uri reale.")
 
+def generate_pdf(monthly, years, final_amount):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    elements.append(Paragraph("Wealth Coach PRO - Plan Financiar", styles['Title']))
+    elements.append(Spacer(1, 0.5 * inch))
+    elements.append(Paragraph(f"Investitie lunara: {monthly} lei", styles['Normal']))
+    elements.append(Paragraph(f"Orizont: {years} ani", styles['Normal']))
+    elements.append(Paragraph(f"Valoare estimata: {int(final_amount)} lei", styles['Normal']))
+    elements.append(Spacer(1, 0.5 * inch))
+    elements.append(Paragraph("Recomandare: Continua investitia si creste contributia anual.", styles['Normal']))
+
+    doc.build(elements)
+    buffer.seek(0)
+    return buffer
+
 st.divider()
 st.subheader("💎 Premium Upgrade")
 
@@ -172,6 +201,15 @@ st.markdown("""
 - 🚀 Acces Beta viitoare funcții
 """)
 
+if st.button("📄 Descarcă Plan PDF (Premium)"):
+    pdf_file = generate_pdf(monthly, years, final_nominal)
+    st.download_button(
+        label="⬇️ Download PDF",
+        data=pdf_file,
+        file_name="wealth_plan.pdf",
+        mime="application/pdf"
+    )
+
 st.markdown("[💳 Cumpără Premium - 39 lei](https://buy.stripe.com/test_cNi8wO92W0ohgyb79uc3m00)")
 
 if not tips:
@@ -182,6 +220,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
