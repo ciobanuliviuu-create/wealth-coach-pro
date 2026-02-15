@@ -365,13 +365,6 @@ if st.button("📄 Generează Plan PDF (Premium)"):
         mime="application/pdf"
     )
 
-        st.download_button(
-            "⬇️ Download PDF",
-            data=pdf_file,
-            file_name="wealth_plan.pdf",
-            mime="application/pdf"
-        )
-
 st.markdown("""
 ### 💎 Premium (39 lei)
 Primești instant:
@@ -391,6 +384,7 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
 
