@@ -161,6 +161,19 @@ st.success(f"🔥 Cu indexare {raise_pct}%/an, ajungi la: **{int(indexed[-1]):,}
 if raise_pct >= 5:
     tips.append(f"Indexează contribuția cu {raise_pct}%/an — e unul dintre cele mai puternice hack-uri reale.")
 
+st.divider()
+st.subheader("💎 Premium Upgrade")
+
+st.markdown("""
+### Ce primești:
+- 📄 Export PDF personalizat
+- 💾 Salvare plan
+- 📊 Strategii avansate
+- 🚀 Acces Beta viitoare funcții
+""")
+
+st.markdown("[💳 Cumpără Premium - 39 lei](https://buy.stripe.com/test_cNi8wO92W0ohgyb79uc3m00)")
+
 if not tips:
     tips.append("Ești setat bine. Ține-te de plan, evită retragerile și optimizează costurile.")
 
@@ -169,5 +182,6 @@ for t in tips:
 
 st.divider()
 st.caption("💡 Următorul pas de startup: conturi utilizatori + salvare plan + export PDF + abonament.")
+
 
 
